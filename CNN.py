@@ -56,25 +56,31 @@ optimizer = optim.Adam(network.parameters(),lr=0.01)
 
 total_loss = 0 
 total_correct = 0
+i = 0
+losses = []
+for epoch in range(5):
 
+    for batch in data_loader:
 
-for batch in data_loader:
+        images,labels = batch #acquires training data and target from batch
+        preds = network(images) #Transforms input into output throughout NN layers
+        loss = F.cross_entropy(preds,labels) #Calculates cross entropy using predictions and labels 
 
-    images,labels = batch #acquires training data and target from batch
-    preds = network(images) #Transforms input into output throughout NN layers
-    loss = F.cross_entropy(preds,labels) #Calculates cross entropy using predictions and labels 
+        optimizer.zero_grad() #resets grad to 0 as pytorch does not reset them automatically
+        loss.backward() #Calculates gradients through backward traversal of comp graph and adds them to previous gradient value
+        optimizer.step() #Proceeds with gradient descent now that gradient is calculated
 
-    optimizer.zero_grad() #resets grad to 0 as pytorch does not reset them automatically
-    loss.backward() #Calculates gradients through backward traversal of comp graph and adds them to previous gradient value
-    optimizer.step() #Proceeds with gradient descent now that gradient is calculated
+        total_loss += loss.item() #sums loss values throughout batches
+        losses.append(loss.item())
+        i = i+1
+        total_correct += get_num_correct(preds,labels)#sums correct guesses throughout batches
 
-    total_loss += loss.item() #sums loss values throughout batches
-    total_correct += get_num_correct(preds,labels)#sums correct guesses throughout batches
+    accuracy = total_correct/60000 * 100
+    print("epoch   :",str(0), "total_correct: ",str(total_correct),"loss: ",str(total_loss))
+    print("\n Accuracy = " + str(accuracy) + "%")
 
-
-print("epoch   :",str(0), "total_correct: ",str(total_correct),"loss: ",str(total_loss))
-
-
+for j in range(1,len(losses)):
+    print(str(losses[j])+ "\n")
 
 
 
